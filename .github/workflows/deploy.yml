@@ -3,7 +3,7 @@ name: Deploy to Oracle Cloud
 on:
   push:
     branches:
-      - main  # ඔබේ GitHub එකේ තියෙන්නේ main කියන branch එක නම් මෙය එසේම තියන්න
+      - main
 
 jobs:
   deploy:
@@ -16,18 +16,18 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # සර්වර් එකට ගොස් කරන වැඩ ටික
+            # සර්වර් එක update කර ගැනීම
             sudo apt update && sudo apt install git -y
             
-            # ප්‍රොජෙක්ට් එක සර්වර් එකේ නැත්නම් Clone කරනවා, තියෙනවා නම් ඒකට යනවා
+            # ප්‍රොජෙක්ට් එක සර්වර් එකේ නැත්නම් Clone කිරීම
             if [ ! -d "backend-last-update" ]; then
-              git clone https://github.com/MilindaSampath/backend-last-update.git
+              git clone https://github.com/MilindaSampath/backend-last-update.git ~/backend-last-update
             fi
             
-            cd backend-last-update
+            cd ~/backend-last-update
             git pull origin main
             
-            # Docker හරහා App එක Run කරනවා
+            # Docker හරහා App එක Build කර Run කිරීම
             sudo docker build -t lms-app .
             sudo docker stop lms-container || true
             sudo docker rm lms-container || true
