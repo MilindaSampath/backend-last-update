@@ -23,6 +23,8 @@ jobs:
             if [ ! -d "backend-last-update" ]; then
               git clone https://github.com/MilindaSampath/backend-last-update.git ~/backend-last-update
             fi
+
+            
             
             cd ~/backend-last-update
             git pull origin main
