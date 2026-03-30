@@ -16,21 +16,24 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # සර්වර් එක update කර ගැනීම
-            sudo apt update && sudo apt install git -y
-            
-            # ප්‍රොජෙක්ට් එක සර්වර් එකේ නැත්නම් Clone කිරීම
-            if [ ! -d "backend-last-update" ]; then
+            # 1. සර්වර් එකේ Java 17 සහ Maven තියෙනවාදැයි බලා නැත්නම් Install කිරීම
+            sudo apt update
+            sudo apt install openjdk-17-jdk maven -y
+
+            # 2. ප්‍රොජෙක්ට් එක ඇති තැනට යෑම (නැත්නම් Clone කිරීම)
+            if [ ! -d "~/backend-last-update" ]; then
               git clone https://github.com/MilindaSampath/backend-last-update.git ~/backend-last-update
             fi
-
-            
             
             cd ~/backend-last-update
             git pull origin main
-            
-            # Docker හරහා App එක Build කර Run කිරීම
-            sudo docker build -t lms-app .
-            sudo docker stop lms-container || true
-            sudo docker rm lms-container || true
-            sudo docker run -d -p 80:8080 --name lms-container lms-app
+
+            # 3. දැනට වැඩ කරන පරණ App එක නවත්වන්න (Port 8080 පාවිච්චි කරන්නේ නම්)
+            # 8080 වෙනුවට ඔබේ App එක වැඩ කරන Port එක මෙතැනට දාන්න
+            sudo fuser -k 8080/tcp || true
+
+            # 4. Maven පාවිච්චි කරලා අලුත් Jar එක Build කිරීම
+            mvn clean package -DskipTests
+
+            # 5. App එක Background එකේ Run කිරීම (Log එක app.log එකට වැටේවි)
+            nohup java -jar target/*.jar > app.log 2>&1 &
